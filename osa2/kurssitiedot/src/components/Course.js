@@ -1,13 +1,14 @@
 import React from 'react'
 import Header from './Header'
 import Content from './Content'
+import Total from './Total'
 
-const Course = ({ course }) => {
+const Course = ({ name, parts }) => {
     return (
         <>
-            <Header header={course.name} />
-            <Content content={course.parts} />
-            {/*<p>Number of exercises {props.parts[0].exercises + props.parts[1].exercises + props.parts[2].exercises}</p>*/}
+            <Header header={name} />
+            <Content content={parts} />
+            <Total total={parts} />
         </>
     )
 }
