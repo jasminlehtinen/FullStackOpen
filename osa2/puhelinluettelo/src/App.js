@@ -1,6 +1,48 @@
 import React, { useState } from 'react'
 
+const Header = ({ text }) => {
+  return (
+    <h2>{text}</h2>
+  )
+}
+
+const Subheader = ({ text }) => {
+  return (
+    <h3>{text}</h3>
+  )
+}
+
+const Filter = ({ search, handleSearchName }) => {
+  return (
+    <div>filter: <input value={search} onChange={handleSearchName}/></div>
+  )
+}
+
+const ContactForm = ({ addContact, newName, handleNewName, newNumber, handleNewNumber }) => {
+  return (
+    <form onSubmit={addContact}>
+      <div>name: <input value={newName} onChange={handleNewName}/></div>
+      <div>number: <input value={newNumber} onChange={handleNewNumber}/></div>
+      <div><button type="submit">add</button></div>
+    </form>
+  )
+}
+
+const ContactList = ({ searchPhonebook }) => {
+  return (
+    <div>
+      {searchPhonebook.map(person => 
+        <p key={person.name}>{person.name} {person.number}</p>
+      )}
+    </div>
+  )
+}
+
 const App = () => {
+  const header = 'Phonebook'
+  const firstSubheader = 'Add a new contact'
+  const secondSubheader = 'Numbers'
+
   const [persons, setPersons] = useState([ 
     { name: 'Ada Lovelace', number: '040-1234567' },
     { name: 'Margaret Hamilton', number: '040-9876543' },
@@ -10,23 +52,23 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')  
   const [search, setSearch] = useState('')
   
-  const addPerson = (event) => {
+  const addContact = (event) => {
     event.preventDefault()
-    const personObject = {
+    const contactObject = {
       name: newName,
       number: newNumber
     }
 
     let isDuplicate = false
     persons.forEach(function(element) {
-      if (element.name === personObject.name) {
+      if (element.name === contactObject.name) {
         isDuplicate = true
         return false
       }
     })
 
     if (!isDuplicate) {
-      setPersons(persons.concat(personObject))
+      setPersons(persons.concat(contactObject))
     } else {
       alert(`${newName} is already added to phonebook`)
     }
@@ -48,24 +90,12 @@ const App = () => {
 
   return (
     <>
-      <h2>Phonebook</h2>
-      <div>filter: <input value={search} onChange={handleSearchName}/></div>
-
-      <h2>Add a new contact</h2>
-      <form onSubmit={addPerson}>
-        <div>name: <input value={newName} onChange={handleNewName}/></div>
-        <div>number: <input value={newNumber} onChange={handleNewNumber}/></div>
-        <div><button type="submit">add</button></div>
-      </form>
-
-      <h2>Numbers</h2>
-      <div>
-        <ul>
-          {searchPhonebook.map(person => 
-            <li key={person.name}>{person.name} {person.number}</li>
-          )}
-        </ul>
-      </div>
+      <Header text={header} />
+      <Filter search={search} handleSearchName={handleSearchName} />
+      <Subheader text={firstSubheader} />
+      <ContactForm addContact={addContact} newName={newName} handleNewName={handleNewName} newNumber={newNumber} handleNewNumber={handleNewNumber} />
+      <Subheader text={secondSubheader} />
+      <ContactList searchPhonebook={searchPhonebook} />
     </>
   )
 }
