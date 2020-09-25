@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const Header = ({ text }) => {
   return (
@@ -43,24 +44,30 @@ const App = () => {
   const firstSubheader = 'Add a new contact'
   const secondSubheader = 'Numbers'
 
-  const [persons, setPersons] = useState([ 
-    { name: 'Ada Lovelace', number: '040-1234567' },
-    { name: 'Margaret Hamilton', number: '040-9876543' },
-    { name: 'Grace Hopper', number: '050-1234567' }
-  ])
+  const [contacts, setContacts] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')  
   const [search, setSearch] = useState('')
-  
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/contacts')
+      .then(response => {
+        setContacts(response.data)
+      })
+  }, [])
+
+
   const addContact = (event) => {
     event.preventDefault()
     const contactObject = {
       name: newName,
-      number: newNumber
+      number: newNumber,
+      id: contacts.length + 1
     }
 
     let isDuplicate = false
-    persons.forEach(function(element) {
+    contacts.forEach(function(element) {
       if (element.name === contactObject.name) {
         isDuplicate = true
         return false
@@ -68,7 +75,9 @@ const App = () => {
     })
 
     if (!isDuplicate) {
-      setPersons(persons.concat(contactObject))
+      setContacts(contacts.concat(contactObject))
+      setNewName('')
+      setNewNumber('')
     } else {
       alert(`${newName} is already added to phonebook`)
     }
@@ -86,7 +95,7 @@ const App = () => {
     setSearch(event.target.value)
   }
 
-  const searchPhonebook = persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
+  const searchPhonebook = contacts.filter(contact => contact.name.toLowerCase().includes(search.toLowerCase()))
 
   return (
     <>
