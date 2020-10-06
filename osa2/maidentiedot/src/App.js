@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const Filter = ({ search, handleSearch }) => {
-  return (
-    <div>Find countries: <input value={search} onChange={handleSearch} /></div>
-  )
-}
 
-const Countries = ({ countries, search }) => {
+const Filter = ({ search, handleSearch }) => (
+  <div>Find countries: <input value={search} onChange={handleSearch} /></div>
+)
+
+const Countries = ({ countries, search, onClick }) => {
 
   const searchForCountries = countries.filter(country => country.name.toLowerCase().includes(search.toLowerCase())) 
 
@@ -25,8 +24,11 @@ const Countries = ({ countries, search }) => {
     return (
       <div>
         {searchForCountries.map(country => 
-          <p key={country.name}>{country.name}</p>
+          <p key={country.name}>
+            {country.name} <Button handleClick={() => onClick(country.name)} text='show' />
+          </p>
         )}
+  
       </div>
     )
   } else {
@@ -38,22 +40,26 @@ const Countries = ({ countries, search }) => {
   }
 }
 
-const Country = ({ country }) => {
-  return (
-    <div>
-      <h1>{country.name}</h1>
-      <p>Capital {country.capital}</p>
-      <p>Population {country.population}</p>
-      <h2>Languages</h2>
-      <ul>
-        {country.languages.map(language => 
-          <li key={language.name}>{language.name}</li>
-        )}
-      </ul>
-      <img src={country.flag} alt='Country flag' width='10%'></img>
-    </div>
-  )
-}
+const Country = ({ country }) => (
+  <div>
+    <h1>{country.name}</h1>
+    <p>Capital {country.capital}</p>
+    <p>Population {country.population}</p>
+    <h2>Languages</h2>
+    <ul>
+      {country.languages.map(language => 
+        <li key={language.name}>{language.name}</li>
+      )}
+    </ul>
+    <img src={country.flag} alt='Country flag' width='10%'></img>
+  </div>
+)
+
+const Button = ({ handleClick, text }) => (
+  <button onClick={handleClick}>
+    {text}
+  </button>
+)
 
 const App = () => {
   const [countries, setCountries] = useState([])
@@ -74,7 +80,7 @@ const App = () => {
   return (
     <>
       <Filter search={search} handleSearch={handleSearch} />
-      <Countries countries={countries} search={search} />
+      <Countries countries={countries} search={search} onClick={setSearch} />
     </>
   )
 }
