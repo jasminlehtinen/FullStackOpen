@@ -61,34 +61,40 @@ const App = () => {
     event.preventDefault()
     const contactObject = {
       name: newName,
-      number: newNumber,
+      number: newNumber
     }
 
-    let isDuplicate = false
-    contacts.forEach(function(element) {
-      if (element.name === contactObject.name) {
-        isDuplicate = true
-        return false
-      }
-    })
+    const isDuplicate = contacts.find(contact => contact.name === newName)
 
-    if (!isDuplicate) {
+    if (isDuplicate) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        updateContact(isDuplicate, isDuplicate.id, newNumber)
+      }
+    } else {
       contactService
         .create(contactObject)
         .then(returnedContact => {
           setContacts(contacts.concat(returnedContact))
           setNewName('')
           setNewNumber('')
-        })
-    } else {
-      alert(`${newName} is already added to phonebook`) 
+      })
     }
-  }
+  }  
 
   const removeContact = (id) => {
     contactService.remove(id)
       .then(res => {
         setContacts(contacts.filter(person => person.id !== id))
+      })
+  }
+
+  const updateContact = (duplicate, id, updatedNumber) => {
+    const changedContact = { ...duplicate, number: updatedNumber}
+
+    contactService
+      .update(id, changedContact)
+      .then(returnedContact => {
+        setContacts(contacts.map(contact => contact.id !== id ? contact : returnedContact))
       })
   }
 
