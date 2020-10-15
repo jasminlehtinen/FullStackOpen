@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import contactService from './services/contacts'
 
 const Header = ({ text }) => {
   return (
@@ -50,10 +50,10 @@ const App = () => {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/contacts')
-      .then(response => {
-        setContacts(response.data)
+    contactService
+      .getAll()
+      .then(initialContacts => {
+        setContacts(initialContacts)
       })
   }, [])
 
@@ -74,10 +74,10 @@ const App = () => {
     })
 
     if (!isDuplicate) {
-      axios
-        .post('http://localhost:3001/contacts', contactObject)
-        .then(response => {
-          setContacts(contacts.concat(contactObject))
+      contactService
+        .create(contactObject)
+        .then(returnedContact => {
+          setContacts(contacts.concat(returnedContact))
           setNewName('')
           setNewNumber('')
         })
