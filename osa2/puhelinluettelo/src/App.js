@@ -29,11 +29,11 @@ const ContactForm = ({ addContact, newName, handleNewName, newNumber, handleNewN
   )
 }
 
-const ContactList = ({ searchPhonebook }) => {
+const ContactList = ({ searchPhonebook, removeContact }) => {
   return (
     <div>
       {searchPhonebook.map(person => 
-        <p key={person.name}>{person.name} {person.number}</p>
+        <p key={person.name}>{person.name} {person.number} <button onClick={() => {if(window.confirm(`Delete ${person.name}?`)){removeContact(person.id)}}}>Delete</button></p>
       )}
     </div>
   )
@@ -62,7 +62,6 @@ const App = () => {
     const contactObject = {
       name: newName,
       number: newNumber,
-      id: contacts.length + 1
     }
 
     let isDuplicate = false
@@ -82,8 +81,15 @@ const App = () => {
           setNewNumber('')
         })
     } else {
-      alert(`${newName} is already added to phonebook`)
+      alert(`${newName} is already added to phonebook`) 
     }
+  }
+
+  const removeContact = (id) => {
+    contactService.remove(id)
+      .then(res => {
+        setContacts(contacts.filter(person => person.id !== id))
+      })
   }
 
   const handleNewName = (event) => {
@@ -107,7 +113,7 @@ const App = () => {
       <Subheader text={firstSubheader} />
       <ContactForm addContact={addContact} newName={newName} handleNewName={handleNewName} newNumber={newNumber} handleNewNumber={handleNewNumber} />
       <Subheader text={secondSubheader} />
-      <ContactList searchPhonebook={searchPhonebook} />
+      <ContactList searchPhonebook={searchPhonebook} removeContact={removeContact} />
     </>
   )
 }
