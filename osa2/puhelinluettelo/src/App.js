@@ -57,7 +57,6 @@ const App = () => {
       })
   }, [])
 
-
   const addContact = (event) => {
     event.preventDefault()
     const contactObject = {
@@ -75,9 +74,13 @@ const App = () => {
     })
 
     if (!isDuplicate) {
-      setContacts(contacts.concat(contactObject))
-      setNewName('')
-      setNewNumber('')
+      axios
+        .post('http://localhost:3001/contacts', contactObject)
+        .then(response => {
+          setContacts(contacts.concat(contactObject))
+          setNewName('')
+          setNewNumber('')
+        })
     } else {
       alert(`${newName} is already added to phonebook`)
     }
