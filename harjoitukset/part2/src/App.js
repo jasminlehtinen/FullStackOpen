@@ -2,6 +2,21 @@ import React, { useState, useEffect } from 'react'
 import Note from './components/Note'
 import noteService from './services/notes'
 
+const Footer = () => {
+  const footerStyle = {
+    color: 'gray',
+    fontStyle: 'italic',
+    fontSize: 16
+  }
+
+  return (
+    <div style={footerStyle}>
+      <br />
+      <em>Note App (Metropolia University of Applied Sciences 2020)</em>
+    </div>
+  )
+}
+
 const App = () => {
     const [notes, setNotes] = useState([])
     const [newNote, setNewNote] = useState('a new note')
@@ -13,7 +28,7 @@ const App = () => {
         .then(initialNotes => {
           setNotes(initialNotes)
         })
-    })
+    }, [])
 
     const toggleImportanceOf = id => {
       const note = notes.find(n => n.id === id)
@@ -76,6 +91,7 @@ const App = () => {
           />
           <button type="submit">save</button>
         </form>  
+        <Footer />
       </div>
     )
 }

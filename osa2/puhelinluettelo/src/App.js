@@ -32,9 +32,21 @@ const ContactForm = ({ addContact, newName, handleNewName, newNumber, handleNewN
 const ContactList = ({ searchPhonebook, removeContact }) => {
   return (
     <div>
-      {searchPhonebook.map(person => 
-        <p key={person.name}>{person.name} {person.number} <button onClick={() => {if(window.confirm(`Delete ${person.name}?`)){removeContact(person.id)}}}>Delete</button></p>
+      {searchPhonebook.map(contact => 
+        <p key={contact.name}>{contact.name} {contact.number} <button onClick={() => {if(window.confirm(`Delete ${contact.name}?`)){removeContact(contact.id, contact.name)}}}>Delete</button></p>
       )}
+    </div>
+  )
+}
+
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className="message">
+      {message}
     </div>
   )
 }
@@ -48,6 +60,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')  
   const [search, setSearch] = useState('')
+  const [notification, setNotification] = useState(null)
 
   useEffect(() => {
     contactService
@@ -77,14 +90,26 @@ const App = () => {
           setContacts(contacts.concat(returnedContact))
           setNewName('')
           setNewNumber('')
-      })
+          setNotification(
+            `New contact '${newName}' added`
+          )
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
+        })
     }
   }  
 
-  const removeContact = (id) => {
+  const removeContact = (id, name) => {
     contactService.remove(id)
       .then(res => {
-        setContacts(contacts.filter(person => person.id !== id))
+        setContacts(contacts.filter(contact => contact.id !== id))
+        setNotification(
+          `Removed contact '${name}'`
+        )
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
       })
   }
 
@@ -95,6 +120,12 @@ const App = () => {
       .update(id, changedContact)
       .then(returnedContact => {
         setContacts(contacts.map(contact => contact.id !== id ? contact : returnedContact))
+        setNotification(
+          `Updated phone number for '${newName}'`
+        )
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
       })
   }
 
@@ -115,6 +146,7 @@ const App = () => {
   return (
     <>
       <Header text={header} />
+      <Notification message={notification} />
       <Filter search={search} handleSearchName={handleSearchName} />
       <Subheader text={firstSubheader} />
       <ContactForm addContact={addContact} newName={newName} handleNewName={handleNewName} newNumber={newNumber} handleNewNumber={handleNewNumber} />
