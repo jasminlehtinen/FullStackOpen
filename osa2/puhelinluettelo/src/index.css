@@ -3,9 +3,20 @@ body {
   font-family: "Lucida Console", Courier, monospace;
 }
 
-.message {
+.notification {
   color: darkslateblue;
   background-color: lavender;
+  font-size: 1.5em;
+  width: 50%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-style: solid;
+  border-radius: 5px;
+}
+
+.error {
+  color: crimson;
+  background-color: mistyrose;
   font-size: 1.5em;
   width: 50%;
   padding: 10px;

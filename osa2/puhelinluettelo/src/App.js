@@ -45,7 +45,19 @@ const Notification = ({ message }) => {
   }
 
   return (
-    <div className="message">
+    <div className="notification">
+      {message}
+    </div>
+  )
+}
+
+const Error = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className="error">
       {message}
     </div>
   )
@@ -61,6 +73,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')  
   const [search, setSearch] = useState('')
   const [notification, setNotification] = useState(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     contactService
@@ -127,6 +140,15 @@ const App = () => {
           setNotification(null)
         }, 5000)
       })
+      .catch(error => {
+        setError(
+          `The contact information for '${duplicate.name}' was already deleted from the server!`
+        )
+        setTimeout(() => {
+          setError(null)
+        }, 5000)
+        setContacts(contacts.filter(contact => contact.id !== id))
+      })
   }
 
   const handleNewName = (event) => {
@@ -147,6 +169,7 @@ const App = () => {
     <>
       <Header text={header} />
       <Notification message={notification} />
+      <Error message={error} />
       <Filter search={search} handleSearchName={handleSearchName} />
       <Subheader text={firstSubheader} />
       <ContactForm addContact={addContact} newName={newName} handleNewName={handleNewName} newNumber={newNumber} handleNewNumber={handleNewNumber} />
