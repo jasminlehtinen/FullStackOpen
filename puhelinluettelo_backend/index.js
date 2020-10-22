@@ -25,17 +25,24 @@ let contacts = [
     {
         "name": "Mary Sue",
         "number": "050-5559876",
-        "id": 6
+        "id": 5
     },
     {
         "name": "Jasmin Lehtinen",
         "number": "040-5559876",
-        "id": 7
+        "id": 6
     }
 ]
 
 app.get('/', (req, res) => {
     res.send('<h2>Phonebook</h2>')
+})
+
+app.get('/info', (req, res) => {
+    const date = new Date()
+    res.write(`<p>Phonebook has info for ${contacts.length} people</p>`)
+    res.write(`${date}`)
+    res.end()
 })
 
 app.get('/api/persons', (req, res) => {
