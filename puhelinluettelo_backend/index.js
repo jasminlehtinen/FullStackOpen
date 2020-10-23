@@ -70,6 +70,20 @@ const generateId = () => {
 app.post('/api/persons', (request, response) => {
     const body = request.body
 
+    if (!body.name || !body.number) {
+        return response.status(400).json({
+            error: 'Add both name and number!'
+        })
+    }
+
+    const isDuplicate = contacts.find(contact => contact.name === body.name)
+
+    if (isDuplicate) {
+        return response.status(400).json({
+            error: 'Name already added'
+        })
+    }
+
     const contact = {
         name: body.name,
         number: body.number,
