@@ -3,6 +3,7 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const Contact = require('./models/contact')
+const { request, response } = require('express')
 const app = express()
 
 app.use(express.json())
@@ -30,14 +31,9 @@ app.get('/api/persons', (req, res) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const contact = contacts.find(contact => contact.id === id)
-
-    if (contact) {
+    Contact.findById(request.params.id).then(contact => {
         response.json(contact)
-    } else {
-        response.status(404).end()
-    }
+    })
 })
 
 const generateId = () => {
@@ -54,23 +50,23 @@ app.post('/api/persons', (request, response) => {
         })
     }
 
-    const isDuplicate = contacts.find(contact => contact.name === body.name)
-
+    // Check to see if the name already exists
+    /*const isDuplicate = contacts.find(contact => contact.name === body.name)
     if (isDuplicate) {
         return response.status(400).json({
             error: 'Name already added'
         })
-    }
+    }*/
 
-    const contact = {
+    const contact = new Contact({
         name: body.name,
         number: body.number,
         id: generateId(),
-    }
+    })
 
-    contacts = contacts.concat(contact)
-
-    response.json(contact)
+    contact.save().then(savedContact => {
+        response.json(savedContact)
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -84,38 +80,3 @@ const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
-
-
-// Old contacts list
-/*let contacts = [
-    {
-        "name": "Ada Lovelace",
-        "number": "040-1234567",
-        "id": 1
-    },
-    {
-        "name": "Margaret Hamilton",
-        "number": "040-9876543",
-        "id": 2
-    },
-    {
-        "name": "Grace Hopper",
-        "number": "050-1234567",
-        "id": 3
-    },
-    {
-        "name": "Joan Clarke",
-        "number": "050-9876543",
-        "id": 4
-    },
-    {
-        "name": "Mary Sue",
-        "number": "050-5559876",
-        "id": 5
-    },
-    {
-        "name": "Jasmin Lehtinen",
-        "number": "040-5559876",
-        "id": 6
-    }
-]*/
