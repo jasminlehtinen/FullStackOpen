@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const Contact = require('./models/contact')
 const app = express()
 
 app.use(express.json())
@@ -9,39 +11,6 @@ app.use(express.static('build'))
 
 morgan.token('body', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :body'))
-
-let contacts = [
-    {
-        "name": "Ada Lovelace",
-        "number": "040-1234567",
-        "id": 1
-    },
-    {
-        "name": "Margaret Hamilton",
-        "number": "040-9876543",
-        "id": 2
-    },
-    {
-        "name": "Grace Hopper",
-        "number": "050-1234567",
-        "id": 3
-    },
-    {
-        "name": "Joan Clarke",
-        "number": "050-9876543",
-        "id": 4
-    },
-    {
-        "name": "Mary Sue",
-        "number": "050-5559876",
-        "id": 5
-    },
-    {
-        "name": "Jasmin Lehtinen",
-        "number": "040-5559876",
-        "id": 6
-    }
-]
 
 app.get('/', (req, res) => {
     res.send('<h2>Phonebook</h2>')
@@ -55,7 +24,9 @@ app.get('/info', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(contacts)
+    Contact.find({}).then(contacts => {
+        res.json(contacts)
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -109,7 +80,42 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(204).end()
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
+
+
+// Old contacts list
+/*let contacts = [
+    {
+        "name": "Ada Lovelace",
+        "number": "040-1234567",
+        "id": 1
+    },
+    {
+        "name": "Margaret Hamilton",
+        "number": "040-9876543",
+        "id": 2
+    },
+    {
+        "name": "Grace Hopper",
+        "number": "050-1234567",
+        "id": 3
+    },
+    {
+        "name": "Joan Clarke",
+        "number": "050-9876543",
+        "id": 4
+    },
+    {
+        "name": "Mary Sue",
+        "number": "050-5559876",
+        "id": 5
+    },
+    {
+        "name": "Jasmin Lehtinen",
+        "number": "040-5559876",
+        "id": 6
+    }
+]*/
