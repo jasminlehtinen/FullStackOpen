@@ -33,7 +33,7 @@ const ContactList = ({ searchPhonebook, removeContact }) => {
   return (
     <div>
       {searchPhonebook.map(contact => 
-        <p key={contact.name}>{contact.name} {contact.number} <button onClick={() => {if(window.confirm(`Delete ${contact.name}?`)){removeContact(contact.id, contact.name)}}}>Delete</button></p>
+        <p key={contact.name}>{contact.name} {contact.number} <button onClick={() => {if(window.confirm(`Remove ${contact.name}?`)){removeContact(contact.id, contact.name)}}}>Delete</button></p>
       )}
     </div>
   )

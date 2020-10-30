@@ -31,9 +31,18 @@ app.get('/api/persons', (req, res) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    Contact.findById(request.params.id).then(contact => {
-        response.json(contact)
-    })
+    Contact.findById(request.params.id)
+        .then(contact => {
+            if (contact) {
+                response.json(contact)
+            } else {
+                response.status(404).end()
+            }
+        })
+        .catch(error => {
+            console.log(error)
+            response.status(400).send({ error: 'Malformatted id' })
+        })
 })
 
 const generateId = () => {
@@ -70,10 +79,10 @@ app.post('/api/persons', (request, response) => {
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    contacts = contacts.filter(contact => contact.id !== id)
-
-    response.status(204).end()
+    Contact.findByIdAndRemove(request.params.id)
+        .then(result => {
+            response.status(204).end()
+        })
 })
 
 const PORT = process.env.PORT
