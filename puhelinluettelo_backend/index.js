@@ -13,13 +13,15 @@ app.use(cors())
 morgan.token('body', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :body'))
 
-app.get('/api/persons', (request, response) => {
-    Contact.find({}).then(contacts => {
-        response.json(contacts)
-    })
+app.get('/api/persons', (request, response, next) => {
+    Contact.find({})
+        .then(contacts => {
+            response.json(contacts)
+        })
+        .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body
 
     if (!body.name || !body.number) {
@@ -33,9 +35,11 @@ app.post('/api/persons', (request, response) => {
         number: body.number,
     })
 
-    contact.save().then(savedContact => {
-        response.json(savedContact)
-    })
+    contact.save()
+        .then(savedContact => {
+            response.json(savedContact)
+        })
+        .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -69,6 +73,17 @@ app.put('/api/persons/:id', (request, response, next) => {
     Contact.findByIdAndUpdate(request.params.id, contact, { new: true })
         .then(updatedContact => {
             response.json(updatedContact)
+        })
+        .catch(error => next(error))
+})
+
+app.get('/info', (request, response, next) => {
+    const date = new Date()
+    Contact.find({})
+        .then(contacts => {
+            response.write(`<p>Phonebook has info for ${contacts.length} people</p>`)
+            response.write(`${date}`)
+            response.end()
         })
         .catch(error => next(error))
 })
