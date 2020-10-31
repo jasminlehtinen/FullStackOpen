@@ -13,9 +13,9 @@ app.use(cors())
 morgan.token('body', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :body'))
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (request, response) => {
     Contact.find({}).then(contacts => {
-        res.json(contacts)
+        response.json(contacts)
     })
 })
 
@@ -27,14 +27,6 @@ app.post('/api/persons', (request, response) => {
             error: 'Add both name and number!'
         })
     }
-
-    // Check to see if the name already exists
-    /*const isDuplicate = contacts.find(contact => contact.name === body.name)
-    if (isDuplicate) {
-        return response.status(400).json({
-            error: 'Name already added'
-        })
-    }*/
 
     const contact = new Contact({
         name: body.name,
@@ -62,6 +54,21 @@ app.delete('/api/persons/:id', (request, response, next) => {
     Contact.findByIdAndRemove(request.params.id)
         .then(result => {
             response.status(204).end()
+        })
+        .catch(error => next(error))
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+
+    const contact = {
+        name: body.name,
+        number: body.number,
+    }
+
+    Contact.findByIdAndUpdate(request.params.id, contact, { new: true })
+        .then(updatedContact => {
+            response.json(updatedContact)
         })
         .catch(error => next(error))
 })
