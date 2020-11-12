@@ -13,7 +13,7 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFind
 
 const contactSchema = new mongoose.Schema({
     name: String,
-    number: String,
+    number: String
 })
 
 const Contact = mongoose.model('Contact', contactSchema)
