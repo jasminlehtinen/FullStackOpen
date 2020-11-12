@@ -110,6 +110,15 @@ const App = () => {
             setNotification(null)
           }, 5000)
         })
+        .catch(error => {
+          const validationError = Object.values(error.response.data)
+          setError(
+            `Person validation failed: '${validationError}'`
+          )
+          setTimeout(() => {
+            setError(null)
+          }, 5000)
+        })
     }
   }  
 
