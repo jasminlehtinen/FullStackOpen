@@ -1,0 +1,18 @@
+{
+    "blogs": [
+      {
+        "title": "Advanced Mathematics",
+        "author": "Ada Lovelace",
+        "url": "http://www.blogs.com/coding/ada-lovelace/advanced_mathematics",
+        "likes": 300,
+        "id": 1
+      },
+      {
+        "title": "About Apollo 11",
+        "author": "Margaret Hamilton",
+        "url": "http://www.blogs.com/coding/margaret-hamilton/about_apollo_11",
+        "likes": 445,
+        "id": 2
+      }
+    ]
+  }

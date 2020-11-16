@@ -1,0 +1,20 @@
+.App {
+  margin-left: 2em;
+}
+
+.App-header, .App-text, .App-form, .App-filter {
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+h2 {
+  text-align: center;
+  font-size: calc(20px + 2vmin);
+}
+
+h3 {
+  font-size: calc(10px + 2vmin);
+}
