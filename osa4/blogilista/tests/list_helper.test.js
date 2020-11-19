@@ -1,6 +1,7 @@
 const dummy = require('../utils/list_helper').dummy
 const totalLikes = require('../utils/list_helper').totalLikes
 const favoriteBlog = require('../utils/list_helper').favoriteBlog
+const mostBlogs = require('../utils/list_helper').mostBlogs
 
 test('Dummy returns one', () => {
   const blogs = []
@@ -110,5 +111,60 @@ describe('Favorite blog', () => {
       author: 'Kristen McIntyre',
       likes: 10
     })
+  })
+})
+
+describe('Most blogs', () => {
+
+  const listWithNoBlogs = []
+
+  const listWithManyBlogs = [
+    {
+      _id: '5fb024cde5de4c0ad0e14828',
+      title: 'Advanced Architecture',
+      author: 'Kristen McIntyre',
+      url: 'http://www.blogs.com/coding101/kristen-mcintyre/advanced-architecture',
+      likes: 5,
+      __v: 0
+    },
+    {
+      _id: '5fb026a2e5de4c0ad0e14829',
+      title: 'Architecture',
+      author: 'Kristen McIntyre',
+      url: 'http://www.blogs.com/coding101/kristen-mcintyre/architecture',
+      likes: 10,
+      __v: 0
+    },
+    {
+      _id: '5fb2cb7bd9398c427c719577',
+      title: 'About Apollo 11',
+      author: 'Margaret Hamilton',
+      url: 'http://www.blogs.com/margaret-hamilton/about_apollo_11',
+      likes: 7,
+      __v: 0
+    },
+    {
+      _id: '5fb2cb7bd9398c427c719588',
+      title: 'Architecture101',
+      author: 'Kristen McIntyre',
+      url: 'http://www.blogs.com/coding101/kristen-mcintyre/architecture101',
+      likes: 12,
+      __v: 0
+    } 
+  ]
+
+  test('When the list is empty, return 0', () => {
+    const result = mostBlogs(listWithNoBlogs)
+    expect(result).toBe(0)
+  })
+
+  test('Most blogs', () => {
+    const result = mostBlogs(listWithManyBlogs)
+    expect(result).toEqual(
+      {
+        author: 'Kristen McIntyre',
+        blogs: 3
+      }
+    )
   })
 })
