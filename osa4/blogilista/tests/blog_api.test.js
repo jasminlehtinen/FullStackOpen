@@ -42,6 +42,11 @@ test('Correct amount of blogs returned', async () => {
 
 test('Returned blogs have a correct id', async () => {
   const response = await api.get('/api/blogs')
+
+  const body = response.body[0]
+
+  expect(body.id).toBeDefined()
+  
 })
 
 afterAll(() => {
