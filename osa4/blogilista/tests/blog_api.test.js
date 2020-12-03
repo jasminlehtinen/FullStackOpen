@@ -49,6 +49,30 @@ test('Returned blogs have a correct id', async () => {
   
 })
 
+test('A valid blog can be added', async () => {
+  const newBlog = {
+    title: 'hmm',
+    author: 'nobody',
+    url: 'http://www.blogs.com/hmm',
+    likes: 1
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  const titles = response.body.map(r => r.title)
+
+  expect(response.body).toHaveLength(initialBlogs.length + 1)
+  expect(titles).toContain(
+    'hmm'
+  )
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
