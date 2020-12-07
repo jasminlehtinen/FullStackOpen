@@ -20,16 +20,20 @@ blogsRouter.get('/:id', (request, response, next) => {
   
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
-  
-  const blog = new Blog({
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: body.likes ? body.likes : 0,
-  })
-  
-  const savedBlog = await blog.save()
-  response.json(savedBlog.toJSON())
+
+  if (!body.title || !body.url) {
+    return response.status(400).json({ error: 'Blog title or url missing' })
+  } else {
+    const blog = new Blog({
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes ? body.likes : 0,
+    })
+    
+    const savedBlog = await blog.save()
+    response.json(savedBlog.toJSON())
+  }
 })
   
 blogsRouter.delete('/:id', (request, response, next) => {
