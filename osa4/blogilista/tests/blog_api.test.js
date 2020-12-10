@@ -6,108 +6,135 @@ const api = supertest(app)
 
 const Blog = require('../models/blog')
 
-beforeEach(async () => {
-  await Blog.deleteMany({})
-  await Blog.insertMany(helper.initialBlogs)
-})
+describe('When there are some blogs already saved', () => {
 
-// Exercise 4.8
-test('Blogs are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-})
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    await Blog.insertMany(helper.initialBlogs)
+  })
 
-// Exercise 4.8
-test('Correct amount of blogs returned', async () => {
-  const response = await api.get('/api/blogs')
+  // Exercise 4.8
+  test('Blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
 
-  expect(response.body).toHaveLength(helper.initialBlogs.length)
-})
+  // Exercise 4.8
+  test('Correct amount of blogs returned', async () => {
+    const response = await api.get('/api/blogs')
 
-// Exercise 4.9*
-test('Returned blogs have a correct id', async () => {
-  const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(helper.initialBlogs.length)
+  })
 
-  const body = response.body[0]
+  describe('Viewing a specific blog', () => {
 
-  expect(body.id).toBeDefined()
-  
-})
+    // Exercise 4.9*
+    test('Returned blogs have a correct id', async () => {
+      const response = await api.get('/api/blogs')
 
-// Exercise 4.10
-test('A valid blog can be added', async () => {
-  const newBlog = {
-    title: 'hmm',
-    author: 'nobody',
-    url: 'http://www.blogs.com/hmm',
-    likes: 1
-  }
+      const body = response.body[0]
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
+      expect(body.id).toBeDefined()
+    })
+  })
+
+  describe('Adding a new blog', () => {
+
+    // Exercise 4.10
+    test('A valid blog can be added', async () => {
+      const newBlog = {
+        title: 'hmm',
+        author: 'nobody',
+        url: 'http://www.blogs.com/hmm',
+        likes: 1
+      }
+
+      await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
 
 
-  const blogsAtEnd = await helper.blogsInDb()
-  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
-  const titles = blogsAtEnd.map(b => b.title)
-  expect(titles).toContain(
-    'hmm'
-  )
-})
+      const titles = blogsAtEnd.map(b => b.title)
+      expect(titles).toContain(
+        'hmm'
+      )
+    })
 
-// Exercise 4.11*
-test('A blog without likes automatically gets 0 likes', async () => {
-  const newBlog = {
-    title: 'no likes',
-    author: 'nobody',
-    url: 'http://www.blogs.com/no_likes',
-  }
+    // Exercise 4.11*
+    test('A blog without likes automatically gets 0 likes', async () => {
+      const newBlog = {
+        title: 'no likes',
+        author: 'nobody',
+        url: 'http://www.blogs.com/no_likes',
+      }
 
-  const blog = await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
+      const blog = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
 
-  const blogsAtEnd = await helper.blogsInDb()
-  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
-  expect(blog.body.likes).toBe(0)
-})
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+      expect(blog.body.likes).toBe(0)
+    })
 
-// Exercise 4.12*
-test('A blog without title and url cannot be added', async () => {
-  /*const blogWithoutTitle = {
+    // Exercise 4.12*
+    test('A blog without title and url cannot be added', async () => {
+      /*const blogWithoutTitle = {
     author: 'nobody',
     url: 'http://www.blogs.com/no-title',
     likes: 1
   }*/
 
-  /*const blogWithoutUrl = {
+      /*const blogWithoutUrl = {
     title: 'this blog has no url',
     author: 'nobody',
     likes: 1
   }*/
 
-  const blogWithoutBoth = {
-    author: 'nobody',
-    likes: 1
-  }
+      const blogWithoutBoth = {
+        author: 'nobody',
+        likes: 1
+      }
 
-  await api
-    .post('/api/blogs')
-    .send(blogWithoutBoth)
-    .expect(400)
+      await api
+        .post('/api/blogs')
+        .send(blogWithoutBoth)
+        .expect(400)
 
-  const blogsAtEnd = await helper.blogsInDb()
-  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
-})
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+    })
+  })
 
-afterAll(() => {
-  mongoose.connection.close()
+  describe('Deleting a blog', () => {
+
+    // Exercise 4.13
+    test('A blog is successfully deleted', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToDelete = blogsAtStart[0]
+
+      await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
+
+      const titles = blogsAtEnd.map(b => b.title)
+      expect(titles).not.toContain(blogToDelete.title)
+    })
+  })
+
+  afterAll(() => {
+    mongoose.connection.close()
+  })
 })
