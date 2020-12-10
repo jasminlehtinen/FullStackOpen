@@ -1,30 +1,14 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
-const initialBlogs = [
-  {
-    title: 'Advanced Mathematics',
-    author: 'Ada Lovelace',
-    url: 'http://www.blogs.com/programming101/ada-lovelace/advanced_mathematics',
-    likes: 12,
-  },
-  {
-    title: 'Learning Full-stack',
-    author: 'Jasmin Lehtinen',
-    url: 'http://www.blogs.com/programming101/jasmin-lehtinen/learning_full-stack',
-    likes: 3,
-  }
-]
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  let blogObject = new Blog(initialBlogs[0])
-  await blogObject.save()
-  blogObject = new Blog(initialBlogs[1])
-  await blogObject.save()
+  await Blog.insertMany(helper.initialBlogs)
 })
 
 // Exercise 4.8
@@ -39,7 +23,7 @@ test('Blogs are returned as json', async () => {
 test('Correct amount of blogs returned', async () => {
   const response = await api.get('/api/blogs')
 
-  expect(response.body).toHaveLength(initialBlogs.length)
+  expect(response.body).toHaveLength(helper.initialBlogs.length)
 })
 
 // Exercise 4.9*
@@ -67,11 +51,11 @@ test('A valid blog can be added', async () => {
     .expect(200)
     .expect('Content-Type', /application\/json/)
 
-  const response = await api.get('/api/blogs')
 
-  const titles = response.body.map(r => r.title)
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
-  expect(response.body).toHaveLength(initialBlogs.length + 1)
+  const titles = blogsAtEnd.map(b => b.title)
   expect(titles).toContain(
     'hmm'
   )
@@ -91,9 +75,8 @@ test('A blog without likes automatically gets 0 likes', async () => {
     .expect(200)
     .expect('Content-Type', /application\/json/)
 
-  const response = await api.get('/api/blogs')
-
-  expect(response.body).toHaveLength(initialBlogs.length + 1)
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
   expect(blog.body.likes).toBe(0)
 })
 
@@ -120,6 +103,9 @@ test('A blog without title and url cannot be added', async () => {
     .post('/api/blogs')
     .send(blogWithoutBoth)
     .expect(400)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
 })
 
 afterAll(() => {
