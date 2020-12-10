@@ -87,7 +87,7 @@ describe('When there are some blogs already saved', () => {
     })
 
     // Exercise 4.12*
-    test('A blog without title and url cannot be added', async () => {
+    test('A blog without title or url cannot be added', async () => {
       /*const blogWithoutTitle = {
     author: 'nobody',
     url: 'http://www.blogs.com/no-title',
@@ -131,6 +131,31 @@ describe('When there are some blogs already saved', () => {
 
       const titles = blogsAtEnd.map(b => b.title)
       expect(titles).not.toContain(blogToDelete.title)
+    })
+  })
+
+  describe('Editing an existing blog', () => {
+
+    // Exercise 4.14*
+    test('Successfully change a blog`s information', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToUpdate = blogsAtStart[0]
+
+
+      const updatedValues = {
+        url: 'http://www.blogs.com/hmm',
+        likes: 5,
+      }
+
+      await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(updatedValues)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd[0].likes).toEqual(updatedValues.likes)
+      expect(blogsAtEnd[0].url).toContain('hmm')
     })
   })
 

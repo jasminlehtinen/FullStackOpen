@@ -36,10 +36,17 @@ const App = () => {
       title: newTitle,
       author: newAuthor,
       url: newUrl,
-      likes: newLikes
+      likes: newLikes,
     }
 
-    blogService
+    const isDuplicate = blogs.find(blog => blog.title === newTitle)
+
+    if (isDuplicate) {
+      if (window.confirm(`${newTitle} is already added to the blog list, want to update the blog information?`)) {
+        updateBlog(isDuplicate, isDuplicate.id, newUrl, newLikes)
+      }
+    } else {
+      blogService
       .create(blogObject)
       .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog))
@@ -52,12 +59,24 @@ const App = () => {
         const validationError = Object.values(error.response.data)
         console.log(validationError)
       })
+    }
   }
 
   const removeBlog = id => {
-    blogService.remove(id)
+    blogService
+      .remove(id)
       .then(res => {
         setBlogs(blogs.filter(blog => blog.id !== id))
+      })
+  }
+
+  const updateBlog = (duplicate, id, updatedUrl, updatedLikes) => {
+    const changedBlog = { ...duplicate, url: updatedUrl, likes: updatedLikes}
+
+    blogService
+      .update(id, changedBlog)
+      .then(returnedBlog => {
+        setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog))
       })
   }
 
