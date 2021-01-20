@@ -1,10 +1,10 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImphenoiLCJpZCI6IjVmZWIwNmZjMzNkOTdkMzEwMGQxMTc1MCIsImlhdCI6MTYxMTE2OTk3NH0.fZTC1zuWMI_VcAYyMZZqrMrpg75ME7KuzICSpDpAARI
 
 {
-    "title": "About Myself",
-    "author": "Dorian Gray",
-    "url": "http://www.blogs.com/dorian-gray/about_myself",
-    "likes": 1,
-    "userId": "5ff5cc3cfd3e1639ac628eff"
+    "title": "Learning about Tokens",
+    "author": "Tony Token",
+    "url": "http://www.blogs.com/tony-token/learning_about_tokens",
+    "likes": 1
 }
