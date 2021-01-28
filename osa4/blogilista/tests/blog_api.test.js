@@ -13,6 +13,13 @@ describe('When there are some blogs already saved', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(helper.initialBlogs)
+
+    await User.deleteMany({})
+  
+    const passwordHash = await bcrypt.hash('mauku', 10)
+    const user = new User({ username: 'miuku', passwordHash })
+
+    await user.save()
   })
 
   // Exercise 4.8
@@ -42,43 +49,76 @@ describe('When there are some blogs already saved', () => {
     })
   })
 
-  describe('Adding a new blog', () => {
+  describe('Adding a new blog when there is at least one user', () => {
 
-    // Exercise 4.10
-    test('A valid blog can be added', async () => {
+    // Exercise 4.10 (and 4.22*)
+    test('A valid blog by an user can be added', async () => {
+
+      const users = await api.get('/api/users')
+      const userId = users.body[0].id
+  
+      const login = await api.post('/api/login')
+        .send({
+          'username': 'miuku',
+          'password': 'mauku'
+        })
+
+      const token = login.body.token
+
       const newBlog = {
-        title: 'hmm',
-        author: 'nobody',
-        url: 'http://www.blogs.com/hmm',
-        likes: 1
+        title: '10 Best Cat Treats',
+        author: 'Catto',
+        url: 'http://www.blogs.com/10_best_cat_treats',
+        likes: 1,
+        user: {
+          username: 'miuku',
+          id: userId
+        }
       }
 
-      await api
+      await api 
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(200)
         .expect('Content-Type', /application\/json/)
-
 
       const blogsAtEnd = await helper.blogsInDb()
       expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
       const titles = blogsAtEnd.map(b => b.title)
       expect(titles).toContain(
-        'hmm'
+        '10 Best Cat Treats'
       )
     })
 
-    // Exercise 4.11*
+    // Exercise 4.11* (and 4.22*)
     test('A blog without likes automatically gets 0 likes', async () => {
+
+      const users = await api.get('/api/users')
+      const userId = users.body[0].id
+  
+      const login = await api.post('/api/login')
+        .send({
+          'username': 'miuku',
+          'password': 'mauku'
+        })
+
+      const token = login.body.token
+
       const newBlog = {
-        title: 'no likes',
-        author: 'nobody',
-        url: 'http://www.blogs.com/no_likes',
+        title: 'Best Cat Beds And Why It`s Always The Cardboard Box',
+        author: 'Catto',
+        url: 'http://www.blogs.com/best_cat_beds',
+        user: {
+          username: 'miuku',
+          id: userId
+        }
       }
 
       const blog = await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(200)
         .expect('Content-Type', /application\/json/)
@@ -88,32 +128,71 @@ describe('When there are some blogs already saved', () => {
       expect(blog.body.likes).toBe(0)
     })
 
-    // Exercise 4.12*
+    // Exercise 4.12* (and 4.22*)
     test('A blog without title or url cannot be added', async () => {
+
+      const users = await api.get('/api/users')
+      const userId = users.body[0].id
+  
+      const login = await api.post('/api/login')
+        .send({
+          'username': 'miuku',
+          'password': 'mauku'
+        })
+
+      const token = login.body.token
+
       /*const blogWithoutTitle = {
-    author: 'nobody',
-    url: 'http://www.blogs.com/no-title',
-    likes: 1
-  }*/
+        author: 'Catto',
+        url: 'http://www.blogs.com/cat_life',
+        likes: 1
+      }*/
 
       /*const blogWithoutUrl = {
-    title: 'this blog has no url',
-    author: 'nobody',
-    likes: 1
-  }*/
+        title: 'Catto's Choice',
+        author: 'Catto',
+        likes: 1
+      }*/
 
       const blogWithoutBoth = {
-        author: 'nobody',
-        likes: 1
+        author: 'Catto',
+        likes: 1,
+        user: {
+          username: 'miuku',
+          id: userId
+        }
       }
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(blogWithoutBoth)
         .expect(400)
 
       const blogsAtEnd = await helper.blogsInDb()
       expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+    })
+
+    // Exercise 4.22*
+    test('A blog without a token cannot be added', async () => {
+      const users = await api.get('/api/users')
+      const userId = users.body[0].id
+
+      const newBlog = {
+        title: 'Running Around 4am',
+        author: 'Catto',
+        url: 'http://www.blogs.com/running_around',
+        user: {
+          username: 'miuku',
+          id: userId
+        }
+      }
+
+      await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect('Content-Type', /application\/json/)
+        .expect(401)
     })
   })
 
@@ -143,7 +222,6 @@ describe('When there are some blogs already saved', () => {
       const blogsAtStart = await helper.blogsInDb()
       const blogToUpdate = blogsAtStart[0]
 
-
       const updatedValues = {
         url: 'http://www.blogs.com/hmm',
         likes: 5,
@@ -163,14 +241,6 @@ describe('When there are some blogs already saved', () => {
 
   // USERS
   describe('When there is initially one user at db', () => {
-    beforeEach(async () => {
-      await User.deleteMany({})
-  
-      const passwordHash = await bcrypt.hash('sekret', 10)
-      const user = new User({ username: 'root', passwordHash })
-  
-      await user.save()
-    })
   
     test('User creation succeeds with a new username', async () => {
       const usersAtStart = await helper.usersInDb()
@@ -178,7 +248,7 @@ describe('When there are some blogs already saved', () => {
       const newUser = {
         username: 'jazz',
         name: 'Jasmin Lehtinen',
-        password: 'kissa',
+        password: 'JALE',
       }
   
       await api
@@ -198,9 +268,9 @@ describe('When there are some blogs already saved', () => {
       const usersAtStart = await helper.usersInDb()
   
       const newUser = {
-        username: 'root',
-        name: 'Superuser',
-        password: 'salainen',
+        username: 'miuku',
+        name: 'Katti Kissanen',
+        password: 'mauku',
       }
   
       const result = await api
