@@ -12,6 +12,7 @@ const App = () => {
   const [newUrl, setNewUrl] = useState('')
   const [newLikes, setNewLikes] = useState('')
 
+  const [message, setMessage] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
 
   const [username, setUsername] = useState('')
@@ -81,11 +82,16 @@ const App = () => {
         setNewAuthor('')
         setNewUrl('')
         setNewLikes('')
+        setMessage(`A new blog '${newTitle}' by '${newAuthor}' added!`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
       })
   }
 
   const loginForm = () => (
     <form onSubmit={handleLogin}>
+      <h1>Login</h1>
       <div>
         Username
           <input
@@ -105,11 +111,13 @@ const App = () => {
           />
       </div>
       <button type="submit">Login</button>
+      <div>{errorMessage}</div>
     </form>
   )
 
   const blogForm = () => (
     <form onSubmit={addBlog}>
+      <h2>Create new</h2>
       <div>
         Title: 
           <input 
@@ -142,25 +150,23 @@ const App = () => {
         onChange={handleBlogChange}
       />*/}
       <button type="submit">Create</button>
+      <div>{message}</div>
     </form>
   )
 
-  const handleBlogChange = (event) => {
+  /*const handleBlogChange = (event) => {
     console.log(event.target.value)
     setNewBlog(event.target.value)
-  }
+  }*/
 
   return (
     <div>
-      <h1>Blogs</h1>
-
       {user === null ?
         loginForm() :
         <div>
-          <div>
-            <p>{user.name} logged in</p>
-            <button onClick={handleLogout}>Logout</button>
-          </div>
+          <h1>Blogs</h1>
+          <p>{user.name} logged in</p>
+          <button onClick={handleLogout}>Logout</button>
           {blogForm()}
           <ul>
             {blogs.map(blog =>
