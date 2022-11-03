@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
 const App = () => {
-  const [loginVisible, setLoginVisible] = useState(false)
-  const [formVisible, setFormVisible] = useState(false)
-
   const [blogs, setBlogs] = useState([])
 
   const [newTitle, setNewTitle] = useState('')
@@ -89,21 +87,14 @@ const App = () => {
         setMessage(`A new blog '${newTitle}' by '${newAuthor}' added!`)
         setTimeout(() => {
           setMessage(null)
-          setFormVisible(false)
         }, 5000)
       })
   }
 
-  const loginForm = () => {
-    const hideWhenVisible = { display: loginVisible ? 'none' : '' }
-    const showWhenVisible = { display: loginVisible ? '' : 'none' }
-
-    return (
-      <div>
-        <div style={hideWhenVisible}>
-          <button onClick={() => setLoginVisible(true)}>Log in</button>
-        </div>
-        <div style={showWhenVisible}>
+  return (
+    <div>
+      {user === null ?
+        <Togglable buttonLabel='Login'>
           <LoginForm
             username={username}
             password={password}
@@ -112,47 +103,23 @@ const App = () => {
             handlePasswordChange={({ target }) => setPassword(target.value)}
             handleSubmit={handleLogin}
           />
-          <button onClick={() => setLoginVisible(false)}>Cancel</button>
-        </div>
-      </div>
-    )
-  }
-
-  const blogForm = () => {
-    const hideWhenVisible = { display: formVisible ? 'none' : '' }
-    const showWhenVisible = { display: formVisible ? '' : 'none' }
-
-    return (
-      <div>
-        <div style={hideWhenVisible}>
-          <button onClick={() => setFormVisible(true)}>New note</button>
-        </div>
-        <div style={showWhenVisible}>
-          <BlogForm
-            newTitle={newTitle}
-            newAuthor={newAuthor}
-            newUrl={newUrl}
-            message={message}
-            handleTitleChange={({ target }) => setNewTitle(target.value)}
-            handleAuthorChange={({ target }) => setNewAuthor(target.value)}
-            handleUrlChange={({ target }) => setNewUrl(target.value)}
-            handleSubmit={addBlog}
-          />
-          <button onClick={() => setFormVisible(false)}>Cancel</button>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      {user === null ?
-        loginForm() :
+        </Togglable> :
         <div>
           <h1>Blogs</h1>
           <p>{user.name} logged in</p>
           <button onClick={handleLogout}>Logout</button>
-          {blogForm()}
+          {<Togglable buttonLabel='New note'>
+            <BlogForm
+              newTitle={newTitle}
+              newAuthor={newAuthor}
+              newUrl={newUrl}
+              message={message}
+              handleTitleChange={({ target }) => setNewTitle(target.value)}
+              handleAuthorChange={({ target }) => setNewAuthor(target.value)}
+              handleUrlChange={({ target }) => setNewUrl(target.value)}
+              handleSubmit={addBlog}
+            />
+          </Togglable>}
           <ul>
             {blogs.map(blog =>
               <Blog key={blog.id} blog={blog} />
